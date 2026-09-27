@@ -9,6 +9,7 @@ Requer Node.js 20+. O modo DEMO não exige serviços externos; a persistência d
 ```bash
 npm run check
 npm test
+npm run smoke:production
 npm run dev
 ```
 
@@ -42,6 +43,7 @@ O módulo financeiro em `src/domain/product-finance.js` rateia custos de pedido 
 - [Notas da documentação oficial iFood](docs/ifood-official-notes.md)
 - [Próximas ações operacionais](docs/next-actions.md)
 - [Revisão de segurança](docs/security-review.md)
+- [Runbook de produção](docs/production-runbook.md)
 
 O modo DEMO local usa persistência em memória. A instância publicada usa PostgreSQL e HTTPS; a promoção para integração real ainda exige backup restaurável, credenciais homologadas, webhook registrado e aprovação do iFood.
 
