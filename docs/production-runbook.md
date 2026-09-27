@@ -7,6 +7,7 @@
 - Integração externa: desativada até homologação do iFood
 - Persistência: PostgreSQL
 - Auditoria: gravação assíncrona no PostgreSQL quando `DATABASE_URL` está configurada
+- Eventos iFood: deduplicação persistida quando `DATABASE_URL` está configurada
 - Health: `/healthz`
 - Readiness: `/readyz`
 

@@ -29,6 +29,7 @@
 - CI do GitHub Actions validando a branch `main`.
 - PostgreSQL gratuito mantido temporariamente, sem upgrade ou cobrança autorizada.
 - Auditoria operacional com persistência PostgreSQL e hidratação no boot, mantendo fallback DEMO em memória.
+- Eventos iFood com deduplicação e hidratação PostgreSQL quando o banco está configurado.
 
 ## Ainda depende de ambiente externo
 

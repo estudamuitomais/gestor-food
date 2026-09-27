@@ -26,16 +26,18 @@ import { featureStatus } from './config/features.js';
 import { SlidingWindowLimiter } from './security/config.js';
 import { can } from './security/access.js';
 import { Persistence } from './db/persistence.js';
+import { PostgresEventRepository } from './db/operational-repositories.js';
 
 const root = fileURLToPath(new URL('../public', import.meta.url));
+const persistence = new Persistence();
 const snapshot = buildDemoSnapshot();
 const ifoodClient = createIfoodClient();
-const ifoodSync = new IfoodSyncService({ client: ifoodClient, eventRepository: new MemoryEventRepository(), orderRepository: new MemoryOrderRepository() });
+const eventRepository = persistence.mode === 'POSTGRES' ? new PostgresEventRepository({ persistence }) : new MemoryEventRepository();
+const ifoodSync = new IfoodSyncService({ client: ifoodClient, eventRepository, orderRepository: new MemoryOrderRepository() });
 const approvalInbox = new ApprovalInbox({ audit: recordAudit });
 const auth = new AuthService();
 const limiter = new SlidingWindowLimiter({ limit: 120, windowMs: 60000 });
 const authLimiter = new SlidingWindowLimiter({ limit: 20, windowMs: 60000 });
-const persistence = new Persistence();
 if (persistence.mode === 'POSTGRES') configureAuditPersistence({
   append: async entry => persistence.query(
     `INSERT INTO audit_logs (id, actor, action, entity, entity_id, metadata_json, created_at)
@@ -325,6 +327,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     try {
       await persistence.migrate();
       await hydrateAudit();
+      await eventRepository.hydrate?.();
       console.log('PostgreSQL migrado com sucesso.');
     } catch (error) {
       console.error('Falha na migração do PostgreSQL:', error.message);
