@@ -8,6 +8,7 @@
 - Persistência: PostgreSQL
 - Auditoria: gravação assíncrona no PostgreSQL quando `DATABASE_URL` está configurada
 - Eventos iFood: deduplicação persistida quando `DATABASE_URL` está configurada
+- Aprovações: decisões persistidas e hidratadas no boot quando `DATABASE_URL` está configurada
 - Health: `/healthz`
 - Readiness: `/readyz`
 

@@ -46,7 +46,7 @@ O módulo financeiro em `src/domain/product-finance.js` rateia custos de pedido 
 - [Revisão de segurança](docs/security-review.md)
 - [Runbook de produção](docs/production-runbook.md)
 
-O modo DEMO local usa persistência em memória. A instância publicada usa PostgreSQL e HTTPS; a promoção para integração real ainda exige backup restaurável, credenciais homologadas, webhook registrado e aprovação do iFood.
+O modo DEMO local usa persistência em memória. A instância publicada usa PostgreSQL e HTTPS, incluindo auditoria, eventos deduplicados e decisões de aprovação; a promoção para integração real ainda exige backup restaurável, credenciais homologadas, webhook registrado e aprovação do iFood.
 
 ## Persistência PostgreSQL
 

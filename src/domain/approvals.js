@@ -1,10 +1,18 @@
 export const APPROVAL_STATUS = Object.freeze({ PENDING: 'PENDING', APPROVED: 'APPROVED', REJECTED: 'REJECTED', ALTERED: 'ALTERED' });
 
 export class ApprovalInbox {
-  constructor({ audit = () => {} } = {}) { this.items = new Map(); this.audit = audit; }
+  constructor({ audit = () => {}, persistence = null } = {}) { this.items = new Map(); this.audit = audit; this.persistence = persistence; }
+  get(id) { return this.items.get(id); }
+  async hydrate() {
+    if (!this.persistence?.load) return 0;
+    const items = await this.persistence.load();
+    for (const item of items) this.items.set(item.id, item);
+    return items.length;
+  }
   create(input) {
     const item = { id: input.id ?? `approval-${this.items.size + 1}`, status: APPROVAL_STATUS.PENDING, createdAt: new Date().toISOString(), ...input };
     this.items.set(item.id, item);
+    void this.persistence?.save?.(item).catch?.(() => {});
     this.audit({ action: 'APPROVAL_CREATED', entityId: item.id });
     return item;
   }
@@ -15,6 +23,7 @@ export class ApprovalInbox {
     if (item.status !== APPROVAL_STATUS.PENDING) throw new Error('Aprovação já decidida.');
     const updated = { ...item, status, decidedBy: actor, decidedAt: new Date().toISOString(), note };
     this.items.set(id, updated);
+    void this.persistence?.save?.(updated).catch?.(() => {});
     this.audit({ action: `APPROVAL_${status}`, entityId: id, actor, metadata: { note } });
     return updated;
   }

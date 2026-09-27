@@ -37,3 +37,36 @@ export class PostgresEventRepository {
     return result.rows.length;
   }
 }
+
+export class PostgresApprovalRepository {
+  constructor({ persistence }) {
+    this.persistence = persistence;
+  }
+
+  async save(item) {
+    await this.persistence.query(
+      `INSERT INTO approvals (id, company_id, store_id, status, title, action_json, decided_by, decided_at, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       ON CONFLICT (id) DO UPDATE SET status = EXCLUDED.status, action_json = EXCLUDED.action_json,
+         decided_by = EXCLUDED.decided_by, decided_at = EXCLUDED.decided_at`,
+      [item.id, item.companyId, item.storeId ?? null, item.status, item.title,
+        JSON.stringify({ action: item.action, risk: item.risk, cost: item.cost, note: item.note ?? '' }),
+        item.decidedBy ?? null, item.decidedAt ?? null, item.createdAt]
+    );
+  }
+
+  async load() {
+    const result = await this.persistence.query(
+      'SELECT id, company_id, store_id, status, title, action_json, decided_by, decided_at, created_at FROM approvals ORDER BY created_at ASC'
+    );
+    return result.rows.map(row => {
+      let action = {};
+      try { action = JSON.parse(row.action_json); } catch { action = {}; }
+      return {
+        id: row.id, companyId: row.company_id, storeId: row.store_id, status: row.status,
+        title: row.title, action: action.action, risk: action.risk, cost: action.cost, note: action.note ?? '',
+        decidedBy: row.decided_by, decidedAt: row.decided_at, createdAt: row.created_at
+      };
+    });
+  }
+}

@@ -26,7 +26,7 @@ import { featureStatus } from './config/features.js';
 import { SlidingWindowLimiter } from './security/config.js';
 import { can } from './security/access.js';
 import { Persistence } from './db/persistence.js';
-import { PostgresEventRepository } from './db/operational-repositories.js';
+import { PostgresApprovalRepository, PostgresEventRepository } from './db/operational-repositories.js';
 
 const root = fileURLToPath(new URL('../public', import.meta.url));
 const persistence = new Persistence();
@@ -34,7 +34,8 @@ const snapshot = buildDemoSnapshot();
 const ifoodClient = createIfoodClient();
 const eventRepository = persistence.mode === 'POSTGRES' ? new PostgresEventRepository({ persistence }) : new MemoryEventRepository();
 const ifoodSync = new IfoodSyncService({ client: ifoodClient, eventRepository, orderRepository: new MemoryOrderRepository() });
-const approvalInbox = new ApprovalInbox({ audit: recordAudit });
+const approvalRepository = persistence.mode === 'POSTGRES' ? new PostgresApprovalRepository({ persistence }) : null;
+const approvalInbox = new ApprovalInbox({ audit: recordAudit, persistence: approvalRepository });
 const auth = new AuthService();
 const limiter = new SlidingWindowLimiter({ limit: 120, windowMs: 60000 });
 const authLimiter = new SlidingWindowLimiter({ limit: 20, windowMs: 60000 });
@@ -49,7 +50,7 @@ if (persistence.mode === 'POSTGRES') configureAuditPersistence({
     return result.rows.map(row => ({ id: row.id, actor: row.actor, action: row.action, entity: row.entity, entityId: row.entity_id, metadata: JSON.parse(row.metadata_json), createdAt: row.created_at }));
   }
 });
-for (const approval of snapshot.approvals) approvalInbox.create(approval);
+for (const approval of snapshot.approvals) approvalInbox.create({ ...approval, companyId: snapshot.company.id });
 recordAudit({ action: 'DEMO_SNAPSHOT_CREATED', actor: 'system', entity: 'demo', entityId: snapshot.company.id });
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8' };
 
@@ -98,7 +99,7 @@ export const server = http.createServer(async (req, res) => {
       if (!requireProtectedAuth(req)) return json(res, { error: 'Autenticação obrigatória.' }, 401);
       if (!hasPermission(req, 'approve_actions')) return json(res, { error: 'Permissão insuficiente.' }, 403);
       const approvalId = req.url.split('/')[3]?.split('?')[0];
-      const approval = snapshot.approvals.find(item => item.id === approvalId);
+      const approval = approvalInbox.get(approvalId);
       if (approval?.storeId && !visibleStores(snapshot.stores, getRequestUser(req)).some(store => store.id === approval.storeId)) return json(res, { error: 'Acesso negado: loja não autorizada.' }, 403);
       return await handleApprovalDecision(req, res);
     }
@@ -163,7 +164,7 @@ export const server = http.createServer(async (req, res) => {
     if (req.url === '/api/reviews') return json(res, snapshot.reviews.filter(review => visibleStoreIds.has(review.storeId)));
     if (req.url === '/api/alerts') return json(res, snapshot.alerts.filter(alert => !alert.storeId || visibleStoreIds.has(alert.storeId)));
     if (req.url === '/api/opportunities') return json(res, snapshot.opportunities.filter(opportunity => !opportunity.storeId || visibleStoreIds.has(opportunity.storeId)));
-    if (req.url === '/api/approvals') return json(res, snapshot.approvals.filter(approval => !approval.storeId || visibleStoreIds.has(approval.storeId)));
+    if (req.url === '/api/approvals') return json(res, approvalInbox.list().filter(approval => !approval.storeId || visibleStoreIds.has(approval.storeId)));
     if (req.url === '/api/decisions') return json(res, snapshot.decisions);
     if (req.url === '/api/audit') { if (process.env.REQUIRE_AUTH === 'true' && !hasPermission(req, 'manage_settings')) return json(res, { error: 'Permissão insuficiente.' }, 403); return json(res, listAudit()); }
     if (req.url.startsWith('/api/')) return json(res, { error: 'Rota API não encontrada.', requestId: id }, 404);
@@ -328,6 +329,8 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       await persistence.migrate();
       await hydrateAudit();
       await eventRepository.hydrate?.();
+      await approvalInbox.hydrate();
+      for (const approval of snapshot.approvals) if (!approvalInbox.get(approval.id)) approvalInbox.create({ ...approval, companyId: snapshot.company.id });
       console.log('PostgreSQL migrado com sucesso.');
     } catch (error) {
       console.error('Falha na migração do PostgreSQL:', error.message);
