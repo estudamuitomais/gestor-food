@@ -43,6 +43,12 @@ jobs:
       - name: Start container
         run: docker run --detach --name gestor-food-ci --publish 3000:3000 gestor-food-ci
 
+      - name: Inspect container
+        run: |
+          sleep 2
+          docker ps --all
+          docker logs gestor-food-ci
+
       - name: Check health endpoint
         run: curl --fail --retry 10 --retry-delay 2 http://127.0.0.1:3000/healthz
 
