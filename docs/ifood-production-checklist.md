@@ -2,13 +2,33 @@
 
 ## Antes de habilitar
 
-- [ ] Criar aplicação no Developer Portal do iFood.
-- [ ] Usar conta profissional com CNPJ e requisitos de homologação.
+- [x] Criar aplicação no Developer Portal do iFood.
+- [x] Usar conta profissional com CNPJ e requisitos de homologação.
+- [ ] Concluir homologação do aplicativo Gestor Food — ticket `34017713` está em análise.
 - [ ] Selecionar apenas os módulos necessários.
 - [ ] Configurar `IFOOD_CLIENT_ID` e `IFOOD_CLIENT_SECRET` somente no backend.
 - [ ] Manter `IFOOD_INTEGRATION_ENABLED=false` até finalizar os testes.
 - [ ] Confirmar que `COSTS_ENABLED=false`.
 - [ ] Não registrar tokens, client secret ou payloads sensíveis em logs.
+
+## Ambiente atual
+
+- Backend publicado: `https://gestor-food.onrender.com`
+- `GET /healthz`: operacional
+- `GET /readyz`: operacional com PostgreSQL
+- Persistência: PostgreSQL conectado no Render
+- Modo atual: DEMO, com chamadas externas bloqueadas
+
+## Após a aprovação
+
+1. Obter as credenciais e os `merchantId` liberados pelo iFood.
+2. Cadastrar os segredos somente nas variáveis protegidas do Render.
+3. Registrar o webhook HTTPS usando `https://gestor-food.onrender.com/api/ifood/webhook`.
+4. Manter `IFOOD_INTEGRATION_ENABLED=false` durante o primeiro teste controlado.
+5. Validar autenticação, Merchant, Events e Order em homologação.
+6. Confirmar `/healthz`, `/readyz`, assinatura HMAC e deduplicação dos eventos.
+7. Habilitar a integração real somente após aprovação administrativa e evidência dos testes.
+8. Revalidar logs, isolamento por loja e plano de rollback.
 
 ## Ordem de implantação
 
