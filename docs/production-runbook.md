@@ -9,6 +9,12 @@
 - Health: `/healthz`
 - Readiness: `/readyz`
 
+## Monitoramento
+
+O workflow `Production monitor` executa o smoke test a cada 15 minutos e também pode ser iniciado manualmente no GitHub Actions. Ele verifica saúde, readiness e bloqueio da integração iFood em modo DEMO.
+
+Falha no workflow deve ser tratada como incidente operacional: verificar o Render, o banco e os logs antes de qualquer alteração de configuração.
+
 ## Smoke test seguro
 
 O smoke test não envia pedidos, não chama operações de escrita do iFood e não expõe segredos:
@@ -41,6 +47,15 @@ O resultado esperado antes da homologação é `DEMO`, `ready` e `enabled=false`
 ## Rollback
 
 Em caso de erro, desabilitar imediatamente `IFOOD_INTEGRATION_ENABLED`, manter `COSTS_ENABLED=false`, redeployar a configuração e confirmar que `/healthz` retorna `mode=DEMO`. Não apagar eventos, pedidos ou trilhas de auditoria durante o rollback.
+
+## Backup e restauração
+
+- Confirmar no Render o plano, a retenção e a possibilidade de restauração do PostgreSQL antes de operar com dados reais.
+- Executar um backup restaurável antes de habilitar a integração real ou aplicar qualquer mudança de schema.
+- Guardar o backup fora do serviço de produção, com acesso restrito e retenção definida.
+- Testar a restauração em um banco separado; nunca testar restauração sobrescrevendo o banco ativo.
+- Registrar data, responsável, versão do schema e resultado do teste.
+- O banco gratuito atual tem expiração prevista para `27/10/2026`; definir upgrade ou migração antes dessa data.
 
 ## Sinais de atenção
 
