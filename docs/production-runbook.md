@@ -69,7 +69,7 @@ Em caso de erro, desabilitar imediatamente `IFOOD_INTEGRATION_ENABLED`, manter `
 - Guardar o backup fora do serviço de produção, com acesso restrito e retenção definida.
 - Testar a restauração em um banco separado; nunca testar restauração sobrescrevendo o banco ativo.
 - Registrar data, responsável, versão do schema e resultado do teste.
-- O banco gratuito atual tem expiração prevista para `27/10/2026`; definir upgrade ou migração antes dessa data.
+- O banco gratuito atual foi mantido sem upgrade ou cobrança; a decisão de upgrade ou migração deve ocorrer antes de `27/10/2026`.
 
 ## Sinais de atenção
 

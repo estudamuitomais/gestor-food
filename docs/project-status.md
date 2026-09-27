@@ -27,6 +27,7 @@
 - Migração automática idempotente executada no boot do serviço.
 - Health check configurado em `/healthz` e readiness validada em `/readyz`.
 - CI do GitHub Actions validando a branch `main`.
+- PostgreSQL gratuito mantido temporariamente, sem upgrade ou cobrança autorizada.
 
 ## Ainda depende de ambiente externo
 
@@ -36,6 +37,7 @@
 - Política de backup restaurável e retenção operacional do banco.
 - Persistência definitiva de produção está ativa; ambientes sem `DATABASE_URL` continuam explicitamente em `MEMORY`/DEMO.
 - Validação dos módulos Financial, Analytics, Catalog e Review no ambiente homologado.
+- Decisão de backup/upgrade do PostgreSQL antes de 27/10/2026.
 
 ## Regras atuais
 
