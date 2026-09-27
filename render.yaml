@@ -9,6 +9,12 @@ services:
         value: production
       - key: IFOOD_INTEGRATION_ENABLED
         value: "false"
+        - key: REQUIRE_AUTH
+          value: "true"
+        - key: COSTS_ENABLED
+          value: "false"
+        - key: TRUST_PROXY
+          value: "true"
       - key: IFOOD_CLIENT_ID
         sync: false
       - key: IFOOD_CLIENT_SECRET
