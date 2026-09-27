@@ -4,6 +4,7 @@ export class IfoodSyncService {
     this.events = eventRepository;
     this.orders = orderRepository;
     this.processing = new Set();
+    this.pollingTimer = null;
   }
 
   async syncOnce() {
@@ -11,24 +12,38 @@ export class IfoodSyncService {
     const incoming = response?.events ?? response ?? [];
     const processedIds = [];
     for (const event of incoming) {
-      const result = await this.ingestEvent(event);
+      const result = await this.ingestEvent(event, { acknowledge: true });
       if (result.processed) processedIds.push(event.id);
     }
-    if (processedIds.length) await this.client.acknowledgeEvents(processedIds);
     return { received: incoming.length, processed: processedIds.length, acknowledged: processedIds };
   }
 
-  async ingestEvent(event) {
+  async ingestEvent(event, { acknowledge = false } = {}) {
     if (!event?.id) return { processed: false, duplicate: false };
     if (this.events.has(event.id) || this.processing.has(event.id)) return { processed: false, duplicate: true };
     this.processing.add(event.id);
     try {
       await this.processEvent(event);
+      if (acknowledge && typeof this.client.acknowledgeEvents === 'function') await this.client.acknowledgeEvents([event.id]);
       this.events.add(event);
       return { processed: true, duplicate: false };
     } finally {
       this.processing.delete(event.id);
     }
+  }
+
+  startPolling({ intervalMs = 30000, onError = () => {} } = {}) {
+    if (!Number.isInteger(intervalMs) || intervalMs < 30000) throw new Error('O polling do iFood deve ser de no mínimo 30 segundos.');
+    if (this.pollingTimer) return false;
+    this.pollingTimer = setInterval(() => { void this.syncOnce().catch(onError); }, intervalMs);
+    return true;
+  }
+
+  stopPolling() {
+    if (!this.pollingTimer) return false;
+    clearInterval(this.pollingTimer);
+    this.pollingTimer = null;
+    return true;
   }
 
   async processEvent(event) {

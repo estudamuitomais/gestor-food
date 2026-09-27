@@ -27,3 +27,25 @@ test('cliente iFood aplica timeout configurável às chamadas', async () => {
 test('cliente iFood lê timeout do ambiente', () => {
   assert.equal(createIfoodClient({ IFOOD_REQUEST_TIMEOUT_MS: '2500' }).requestTimeoutMs, 2500);
 });
+
+test('cliente iFood monta operações obrigatórias do Merchant', async () => {
+  const calls = [];
+  const client = new IfoodApiClient({ clientId: 'id', clientSecret: 'secret', enabled: true, fetchImpl: async (url, options) => {
+    calls.push({ url, method: options.method ?? 'GET' });
+    return { ok: true, status: 200, json: async () => ({}) };
+  } });
+  await client.getMerchant('m1');
+  await client.getMerchantStatus('m1');
+  await client.getMerchantInterruptions('m1');
+  await client.createMerchantInterruption('m1', { start: '2026-09-27T10:00:00Z' });
+  await client.deleteMerchantInterruption('m1', 'pause-1');
+  await client.getOpeningHours('m1');
+  assert.deepEqual(calls.filter(call => !call.url.includes('/authentication/')), [
+    { url: 'https://merchant-api.ifood.com.br/merchant/v1.0/merchants/m1', method: 'GET' },
+    { url: 'https://merchant-api.ifood.com.br/merchant/v1.0/merchants/m1/status', method: 'GET' },
+    { url: 'https://merchant-api.ifood.com.br/merchant/v1.0/merchants/m1/interruptions', method: 'GET' },
+    { url: 'https://merchant-api.ifood.com.br/merchant/v1.0/merchants/m1/interruptions', method: 'POST' },
+    { url: 'https://merchant-api.ifood.com.br/merchant/v1.0/merchants/m1/interruptions/pause-1', method: 'DELETE' },
+    { url: 'https://merchant-api.ifood.com.br/merchant/v1.0/merchants/m1/opening-hours', method: 'GET' }
+  ]);
+});

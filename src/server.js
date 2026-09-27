@@ -315,10 +315,13 @@ function send(res, code, body) { res.writeHead(code, { 'Content-Type': 'text/pla
 export function startServer(port = Number(process.env.PORT ?? 3000)) {
   const normalizedPort = Number(port);
   if (!Number.isInteger(normalizedPort) || normalizedPort < 0 || normalizedPort > 65535) throw new Error('Porta inválida.');
-  return server.listen(normalizedPort, () => console.log(`Gerente iFood IA DEMO em http://localhost:${normalizedPort}`));
+  const listener = server.listen(normalizedPort, () => console.log(`Gerente iFood IA ${ifoodClient.enabled ? 'REAL' : 'DEMO'} em http://localhost:${normalizedPort}`));
+  if (ifoodClient.enabled) ifoodSync.startPolling({ intervalMs: Number(process.env.IFOOD_POLL_INTERVAL_MS ?? 30000), onError: error => console.error(JSON.stringify(logEntry({ level: 'error', message: 'ifood_polling_failed', metadata: safeError(error) }))) });
+  return listener;
 }
 
 export async function stopServer() {
+  ifoodSync.stopPolling();
   if (!server.listening) return;
   await new Promise((resolveClose, reject) => server.close(error => error ? reject(error) : resolveClose()));
 }

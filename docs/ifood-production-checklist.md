@@ -35,8 +35,8 @@
 1. Authentication com OAuth centralizado.
 2. Confirmar autenticação centralizada habilitada para uso de webhook.
 3. Merchant para listar lojas e consultar status.
-4. Events por polling durante desenvolvimento.
-5. Idempotência e acknowledgment.
+4. Events por polling durante desenvolvimento, com intervalo automático mínimo de 30 segundos no modo REAL.
+5. Idempotência e acknowledgment individual imediatamente após cada evento processado.
 6. Webhook HTTPS com validação de `X-IFood-Signature`.
 7. Responder `202 Accepted` rapidamente e tratar a entrega como pelo menos uma vez, mantendo idempotência por `event.id`.
 8. Order para detalhes e ciclo operacional.

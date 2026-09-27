@@ -49,7 +49,12 @@ export class IfoodApiClient {
   }
 
   listMerchants() { return this.request('/merchant/v1.0/merchants'); }
+  getMerchant(merchantId) { return this.request(`/merchant/v1.0/merchants/${encodeURIComponent(merchantId)}`); }
   getMerchantStatus(merchantId) { return this.request(`/merchant/v1.0/merchants/${encodeURIComponent(merchantId)}/status`); }
+  getMerchantInterruptions(merchantId) { return this.request(`/merchant/v1.0/merchants/${encodeURIComponent(merchantId)}/interruptions`); }
+  createMerchantInterruption(merchantId, interruption) { return this.request(`/merchant/v1.0/merchants/${encodeURIComponent(merchantId)}/interruptions`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(interruption) }); }
+  deleteMerchantInterruption(merchantId, interruptionId) { return this.request(`/merchant/v1.0/merchants/${encodeURIComponent(merchantId)}/interruptions/${encodeURIComponent(interruptionId)}`, { method: 'DELETE' }); }
+  getOpeningHours(merchantId) { return this.request(`/merchant/v1.0/merchants/${encodeURIComponent(merchantId)}/opening-hours`); }
   getOrder(orderId) { return this.request(`/order/v1.0/orders/${encodeURIComponent(orderId)}`); }
   listCatalogs(merchantId) { return this.request(`/catalog/v2.0/merchants/${encodeURIComponent(merchantId)}/catalogs`); }
   listSellableItems(merchantId, catalogId) { return this.request(`/catalog/v2.0/merchants/${encodeURIComponent(merchantId)}/catalogs/${encodeURIComponent(catalogId)}/sellableItems`); }

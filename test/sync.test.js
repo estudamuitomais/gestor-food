@@ -13,6 +13,23 @@ test('processa eventos uma única vez e reconhece somente os processados', async
   assert.equal(sync.orders.list().length, 1);
 });
 
+test('reconhece cada evento imediatamente após processá-lo', async () => {
+  const calls = [];
+  const client = { pollEvents: async () => ({ events: [{ id: 'evt-1', code: 'PLACED' }, { id: 'evt-2', code: 'CONFIRMED' }] }), acknowledgeEvents: async ids => calls.push(ids) };
+  const sync = new IfoodSyncService({ client });
+  await sync.syncOnce();
+  assert.deepEqual(calls, [['evt-1'], ['evt-2']]);
+});
+
+test('polling exige intervalo mínimo de 30 segundos e pode ser encerrado', () => {
+  const sync = new IfoodSyncService({ client: {} });
+  assert.throws(() => sync.startPolling({ intervalMs: 29999 }), /mínimo 30 segundos/);
+  assert.equal(sync.startPolling({ intervalMs: 30000 }), true);
+  assert.equal(sync.startPolling({ intervalMs: 30000 }), false);
+  assert.equal(sync.stopPolling(), true);
+  assert.equal(sync.stopPolling(), false);
+});
+
 test('busca detalhes oficiais para evento de pedido colocado', async () => {
   let fetched = false;
   const client = { pollEvents: async () => ({ events: [{ id: 'evt-2', code: 'PLACED', orderId: 'order-2' }] }), getOrder: async () => { fetched = true; return { id: 'order-2', items: [] }; }, acknowledgeEvents: async () => {} };
