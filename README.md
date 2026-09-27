@@ -10,6 +10,7 @@ Requer Node.js 20+. O modo DEMO não exige serviços externos; a persistência d
 npm run check
 npm test
 npm run smoke:production
+npm run verify:release
 npm run dev
 ```
 

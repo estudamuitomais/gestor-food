@@ -31,6 +31,16 @@ node scripts/smoke-production.mjs https://exemplo.example.com
 
 O resultado esperado antes da homologação é `DEMO`, `ready` e `enabled=false`.
 
+## Preflight de release
+
+Antes de qualquer mudança operacional, executar:
+
+```bash
+npm run verify:release
+```
+
+Esse comando executa verificação de sintaxe, os testes automatizados e o smoke test público. Ele não habilita a integração iFood e não substitui a homologação oficial.
+
 ## Ativação controlada após aprovação
 
 1. Confirmar aprovação do ticket iFood `34017713`.
