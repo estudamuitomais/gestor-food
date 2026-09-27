@@ -310,6 +310,16 @@ export async function stopServer() {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  if (persistence.mode === 'POSTGRES') {
+    try {
+      await persistence.migrate();
+      console.log('PostgreSQL migrado com sucesso.');
+    } catch (error) {
+      console.error('Falha na migração do PostgreSQL:', error.message);
+      process.exitCode = 1;
+      process.exit();
+    }
+  }
   startServer();
   const shutdown = async signal => {
     console.log(`Encerrando servidor (${signal})...`);
