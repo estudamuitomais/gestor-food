@@ -52,6 +52,12 @@ jobs:
       - name: Check health endpoint
         run: curl --fail --retry 10 --retry-delay 2 http://127.0.0.1:3000/healthz
 
+      - name: Check readiness endpoint
+        run: curl --fail --retry 10 --retry-delay 2 http://127.0.0.1:3000/readyz
+
+      - name: Confirm external integration remains locked in CI
+        run: curl --fail http://127.0.0.1:3000/api/ifood/config | grep -q '"enabled":false'
+
       - name: Stop container
         if: always()
         run: docker rm --force gestor-food-ci
