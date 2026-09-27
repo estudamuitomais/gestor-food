@@ -6,6 +6,7 @@
 - Modo padrão: `DEMO`
 - Integração externa: desativada até homologação do iFood
 - Persistência: PostgreSQL
+- Auditoria: gravação assíncrona no PostgreSQL quando `DATABASE_URL` está configurada
 - Health: `/healthz`
 - Readiness: `/readyz`
 

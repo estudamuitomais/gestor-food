@@ -29,6 +29,11 @@ export class Persistence {
     }
   }
 
+  async query(text, values = []) {
+    if (!this.pool) throw new Error('DATABASE_URL não configurada.');
+    return this.pool.query(text, values);
+  }
+
   async migrate() {
     if (!this.pool) throw new Error('DATABASE_URL não configurada.');
     const schema = await readFile(schemaPath, 'utf8');

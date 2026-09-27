@@ -28,6 +28,7 @@
 - Health check configurado em `/healthz` e readiness validada em `/readyz`.
 - CI do GitHub Actions validando a branch `main`.
 - PostgreSQL gratuito mantido temporariamente, sem upgrade ou cobrança autorizada.
+- Auditoria operacional com persistência PostgreSQL e hidratação no boot, mantendo fallback DEMO em memória.
 
 ## Ainda depende de ambiente externo
 

@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { extname, join, normalize, relative, resolve, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDemoSnapshot, DEMO_SCENARIOS } from './domain/demo.js';
-import { listAudit, recordAudit } from './domain/audit.js';
+import { configureAuditPersistence, hydrateAudit, listAudit, recordAudit } from './domain/audit.js';
 import { createIfoodClient, IfoodApiClient } from './integrations/ifood/client.js';
 import { IfoodSyncService, MemoryEventRepository, MemoryOrderRepository } from './integrations/ifood/sync-service.js';
 import { productsToCsv, ordersToCsv, dailyExecutiveSummary } from './domain/reports.js';
@@ -36,6 +36,17 @@ const auth = new AuthService();
 const limiter = new SlidingWindowLimiter({ limit: 120, windowMs: 60000 });
 const authLimiter = new SlidingWindowLimiter({ limit: 20, windowMs: 60000 });
 const persistence = new Persistence();
+if (persistence.mode === 'POSTGRES') configureAuditPersistence({
+  append: async entry => persistence.query(
+    `INSERT INTO audit_logs (id, actor, action, entity, entity_id, metadata_json, created_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO NOTHING`,
+    [entry.id, entry.actor, entry.action, entry.entity, entry.entityId ?? null, JSON.stringify(entry.metadata ?? {}), entry.createdAt]
+  ),
+  load: async () => {
+    const result = await persistence.query('SELECT id, actor, action, entity, entity_id, metadata_json, created_at FROM audit_logs ORDER BY created_at ASC');
+    return result.rows.map(row => ({ id: row.id, actor: row.actor, action: row.action, entity: row.entity, entityId: row.entity_id, metadata: JSON.parse(row.metadata_json), createdAt: row.created_at }));
+  }
+});
 for (const approval of snapshot.approvals) approvalInbox.create(approval);
 recordAudit({ action: 'DEMO_SNAPSHOT_CREATED', actor: 'system', entity: 'demo', entityId: snapshot.company.id });
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8' };
@@ -313,6 +324,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   if (persistence.mode === 'POSTGRES') {
     try {
       await persistence.migrate();
+      await hydrateAudit();
       console.log('PostgreSQL migrado com sucesso.');
     } catch (error) {
       console.error('Falha na migração do PostgreSQL:', error.message);
