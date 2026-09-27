@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 test('schema SQL preserva isolamento e trilhas operacionais', async () => {
   const schema = await readFile(new URL('../src/db/schema.sql', import.meta.url), 'utf8');
   for (const table of ['schema_migrations', 'companies', 'users', 'stores', 'store_memberships', 'sessions', 'orders', 'order_costs', 'order_items', 'audit_logs', 'ifood_events', 'forecasts', 'approvals', 'notifications']) {
-    assert.match(schema, new RegExp(`CREATE TABLE ${table}\\b`));
+    assert.match(schema, new RegExp(`CREATE TABLE (?:IF NOT EXISTS )?${table}\\b`));
   }
   assert.match(schema, /company_id TEXT NOT NULL REFERENCES companies\(id\)/);
   assert.match(schema, /gross_cents BIGINT NOT NULL/);
@@ -19,6 +19,6 @@ test('schema SQL preserva isolamento e trilhas operacionais', async () => {
 test('schema SQL possui índices para consultas operacionais', async () => {
   const schema = await readFile(new URL('../src/db/schema.sql', import.meta.url), 'utf8');
   for (const index of ['idx_stores_company', 'idx_orders_store_created', 'idx_events_order_processed', 'idx_audit_company_created', 'idx_approvals_company_status']) {
-    assert.match(schema, new RegExp(`CREATE INDEX ${index}\\b`));
+    assert.match(schema, new RegExp(`CREATE INDEX (?:IF NOT EXISTS )?${index}\\b`));
   }
 });
