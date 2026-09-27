@@ -29,3 +29,23 @@ jobs:
 
       - name: Test suite
         run: npm test
+
+  container:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build container image
+        run: docker build --tag gestor-food-ci .
+
+      - name: Start container
+        run: docker run --detach --name gestor-food-ci --publish 3000:3000 gestor-food-ci
+
+      - name: Check health endpoint
+        run: curl --fail --retry 10 --retry-delay 2 http://127.0.0.1:3000/healthz
+
+      - name: Stop container
+        if: always()
+        run: docker rm --force gestor-food-ci
