@@ -25,6 +25,7 @@ import { criticalReviews } from './domain/review-service.js';
 import { featureStatus } from './config/features.js';
 import { SlidingWindowLimiter } from './security/config.js';
 import { can } from './security/access.js';
+import { Persistence } from './db/persistence.js';
 
 const root = fileURLToPath(new URL('../public', import.meta.url));
 const snapshot = buildDemoSnapshot();
@@ -34,6 +35,7 @@ const approvalInbox = new ApprovalInbox({ audit: recordAudit });
 const auth = new AuthService();
 const limiter = new SlidingWindowLimiter({ limit: 120, windowMs: 60000 });
 const authLimiter = new SlidingWindowLimiter({ limit: 20, windowMs: 60000 });
+const persistence = new Persistence();
 for (const approval of snapshot.approvals) approvalInbox.create(approval);
 recordAudit({ action: 'DEMO_SNAPSHOT_CREATED', actor: 'system', entity: 'demo', entityId: snapshot.company.id });
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8' };
@@ -52,7 +54,7 @@ export const server = http.createServer(async (req, res) => {
   if (req.method === 'POST' && ['/api/auth/login', '/api/auth/register'].includes(new URL(req.url, 'http://localhost').pathname) && !authLimiter.allow(String(rateKey))) { res.setHeader('Retry-After', '60'); return json(res, { error: 'Limite de autenticação excedido.', requestId: id }, 429); }
   try {
     if (req.method === 'GET' && req.url === '/healthz') return json(res, { status: 'ok', mode: ifoodClient.enabled ? 'REAL' : 'DEMO' });
-    if (req.method === 'GET' && req.url === '/readyz') { const environment = validateEnvironment(); return json(res, { status: environment.valid ? 'ready' : 'not_ready', mode: ifoodClient.enabled ? 'REAL' : 'DEMO', errors: environment.errors }, environment.valid ? 200 : 503); }
+    if (req.method === 'GET' && req.url === '/readyz') { const environment = validateEnvironment(); const database = await persistence.check(); const valid = environment.valid && database.ready; const body = { status: valid ? 'ready' : 'not_ready', mode: ifoodClient.enabled ? 'REAL' : 'DEMO', errors: [...environment.errors, ...database.errors] }; if (persistence.mode === 'POSTGRES') body.persistence = database.mode; return json(res, body, valid ? 200 : 503); }
     if (req.url.startsWith('/api/') && process.env.REQUIRE_AUTH === 'true' && !isPublicApi(req.url) && !requireProtectedAuth(req)) return json(res, { error: 'Autenticação obrigatória.', requestId: id }, 401);
     const allowedMethods = allowedMethodsFor(req.url);
     if (allowedMethods && !allowedMethods.includes(req.method)) {
@@ -94,7 +96,7 @@ export const server = http.createServer(async (req, res) => {
     if (req.url === '/api/demo/scenarios') return json(res, { scenarios: DEMO_SCENARIOS });
     if (req.url === '/api/demo' || req.url.startsWith('/api/demo?')) { const demoUrl = new URL(req.url, 'http://localhost'); return json(res, buildDemoSnapshot({ scenario: demoUrl.searchParams.get('scenario') ?? 'normal' })); }
     if (req.url === '/api/openapi.json') return json(res, openapi);
-    if (req.url === '/api/system/status') return json(res, featureStatus());
+    if (req.url === '/api/system/status') return json(res, featureStatus(process.env, { mode: persistence.mode, productionReady: persistence.mode === 'POSTGRES' }));
     if (req.url === '/api/stores') return json(res, visibleStores(snapshot.stores, getRequestUser(req)).map(({ orders, ...store }) => store));
     if (req.url.startsWith('/api/stores/') && req.url.endsWith('/health')) {
       const storeId = req.url.split('/')[3];

@@ -4,7 +4,7 @@ Fundação da Fase 1 do sistema: multiempresa/multiloja, modo DEMO isolado, cál
 
 ## Executar
 
-Requer Node.js 20+ e não exige dependências externas.
+Requer Node.js 20+. O modo DEMO não exige serviços externos; a persistência de produção usa PostgreSQL.
 
 ```bash
 npm run check
@@ -44,3 +44,13 @@ O módulo financeiro em `src/domain/product-finance.js` rateia custos de pedido 
 - [Revisão de segurança](docs/security-review.md)
 
 O modo atual usa persistência em memória para DEMO. A promoção para produção exige banco persistente, backup restaurável, credenciais homologadas e webhook HTTPS.
+
+## Persistência PostgreSQL
+
+Configure `DATABASE_URL` apenas no ambiente protegido do servidor. Sem essa variável, o app permanece em `MEMORY/DEMO`.
+
+```bash
+npm run db:migrate
+```
+
+O comando aplica `src/db/schema.sql`. Depois, `GET /readyz` verifica a conexão e `/api/system/status` informa o modo de persistência.

@@ -21,13 +21,14 @@
 - Autenticação, sessões, papéis e isolamento por tenant.
 - Redaction, auditoria, rate limit e headers de segurança.
 - Adaptadores oficiais iFood preparados.
+- Adaptador PostgreSQL opcional, migração inicial e verificação de prontidão preparados.
 
 ## Ainda depende de ambiente externo
 
 - CNPJ e homologação no Developer Portal do iFood.
 - `IFOOD_CLIENT_ID` e `IFOOD_CLIENT_SECRET` reais.
 - URL HTTPS pública para webhook.
-- Banco persistente de produção.
+- Provisionamento e configuração do banco persistente de produção.
 - Deploy e política de backup operacional.
 - Persistência definitiva; o status da aplicação informa explicitamente `MEMORY`/DEMO.
 - Validação dos módulos Financial, Analytics, Catalog e Review no ambiente homologado.

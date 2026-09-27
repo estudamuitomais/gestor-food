@@ -1,9 +1,9 @@
-export function featureStatus(env = process.env) {
+export function featureStatus(env = process.env, persistence = null) {
   return {
     mode: env.IFOOD_INTEGRATION_ENABLED === 'true' ? 'REAL' : 'DEMO',
     costsBlocked: env.COSTS_ENABLED !== 'true',
     authRequired: env.REQUIRE_AUTH === 'true',
-    persistence: { mode: 'MEMORY', productionReady: false },
+    persistence: persistence ?? { mode: 'MEMORY', productionReady: false },
     modules: {
       demo: true,
       dashboard: true,
