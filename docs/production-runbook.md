@@ -31,6 +31,10 @@ node scripts/smoke-production.mjs https://exemplo.example.com
 
 O resultado esperado antes da homologação é `DEMO`, `ready` e `enabled=false`.
 
+## Ambiente de staging
+
+Use `.env.staging.example` como base para um ambiente separado. O arquivo mantém autenticação obrigatória, custos desligados, proxy confiável desativado e chamadas iFood bloqueadas. Nunca copie credenciais reais para esse arquivo nem o publique no frontend.
+
 ## Preflight de release
 
 Antes de qualquer mudança operacional, executar:
