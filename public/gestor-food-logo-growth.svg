@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title>Gestor Food — Crescimento</title>
+  <rect width="512" height="512" rx="112" fill="#172033"/>
+  <circle cx="256" cy="256" r="166" fill="#243451"/>
+  <path d="M128 342h256M158 294l66-62 54 36 78-104" fill="none" stroke="#ffb347" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M322 164h34v34" fill="none" stroke="#ffb347" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

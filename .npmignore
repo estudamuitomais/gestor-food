@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+node_modules/
+coverage/
+dist/
+*.log
+gerente-ifood-demo-backup.json
+.git/
+.codex/

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Gestor Food</title>
+  <desc id="desc">Monograma GF: G como prato e F como garfo</desc>
+  <rect width="512" height="512" rx="108" fill="#173044"/>
+  <path d="M322 173a124 124 0 1 0 20 154" fill="none" stroke="#fff9ec" stroke-width="38" stroke-linecap="round"/>
+  <path d="M342 273h-79" fill="none" stroke="#fff9ec" stroke-width="38" stroke-linecap="round"/>
+  <path d="M378 176v179" fill="none" stroke="#ffad5c" stroke-width="25" stroke-linecap="round"/>
+  <path d="M348 174v52a30 30 0 0 0 60 0v-52M378 173v81M378 287h39" fill="none" stroke="#ffad5c" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

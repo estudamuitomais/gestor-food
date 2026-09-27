@@ -1,0 +1,43 @@
+import { DEMO_SCENARIOS } from '../domain/demo.js';
+
+export const openapi = {
+  openapi: '3.0.3',
+  info: { title: 'Gerente iFood IA API', version: '0.1.0', description: 'API DEMO e contratos preparados para integração oficial.' },
+  servers: [{ url: 'http://localhost:3000' }],
+  paths: {
+    '/healthz': { get: { summary: 'Liveness do processo', responses: { 200: { description: 'Processo ativo' } } } },
+    '/readyz': { get: { summary: 'Readiness da configuração', responses: { 200: { description: 'Pronto para atender' }, 503: { description: 'Configuração inválida' } } } },
+    '/api/demo/scenarios': { get: { summary: 'Listar cenários DEMO', responses: { 200: { description: 'Cenários disponíveis' } } } },
+    '/api/demo': { get: { summary: 'Snapshot DEMO', parameters: [{ name: 'scenario', in: 'query', schema: { type: 'string', enum: DEMO_SCENARIOS, default: 'normal' } }], responses: { 200: { description: 'Snapshot operacional' } } } },
+    '/api/stores': { get: { summary: 'Listar lojas', responses: { 200: { description: 'Lojas' } } } },
+    '/api/stores/{storeId}/health': { get: { summary: 'Saúde da loja', parameters: [{ name: 'storeId', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'Indicadores de saúde' }, 404: { description: 'Loja não encontrada' } } } },
+    '/api/orders': { get: { summary: 'Listar pedidos', parameters: [{ name: 'storeId', in: 'query', schema: { type: 'string' } }, { name: 'status', in: 'query', schema: { type: 'string' } }, { name: 'from', in: 'query', schema: { type: 'string', format: 'date-time' } }, { name: 'to', in: 'query', schema: { type: 'string', format: 'date-time' } }], responses: { 200: { description: 'Pedidos' } } } },
+    '/api/orders/{orderId}': { get: { summary: 'Detalhe do pedido', parameters: [{ name: 'orderId', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'Pedido detalhado' }, 404: { description: 'Pedido não encontrado' } } } },
+    '/api/finance/summary': { get: { summary: 'Resumo financeiro', parameters: [{ name: 'storeId', in: 'query', schema: { type: 'string' } }, { name: 'from', in: 'query', schema: { type: 'string', format: 'date-time' } }, { name: 'to', in: 'query', schema: { type: 'string', format: 'date-time' } }], responses: { 200: { description: 'Totais financeiros' } } } },
+    '/api/metrics': { get: { summary: 'Métricas consolidadas', responses: { 200: { description: 'Métricas gerais e por loja' } } } },
+    '/api/metrics/daily': { get: { summary: 'Métricas diárias', responses: { 200: { description: 'Série diária' } } } },
+    '/api/metrics/hourly': { get: { summary: 'Métricas horárias', responses: { 200: { description: 'Série horária' } } } },
+    '/api/forecasts': { get: { summary: 'Previsões de fechamento', responses: { 200: { description: 'Previsões por loja' } } } },
+    '/api/goals': { get: { summary: 'Progresso de metas', parameters: [{ name: 'scenario', in: 'query', schema: { type: 'string', enum: DEMO_SCENARIOS, default: 'normal' } }], responses: { 200: { description: 'Metas por loja' } } } },
+    '/api/recovery/{storeId}': { get: { summary: 'Plano de recuperação', parameters: [{ name: 'storeId', in: 'path', required: true, schema: { type: 'string' } }, { name: 'scenario', in: 'query', schema: { type: 'string', enum: DEMO_SCENARIOS, default: 'normal' } }], responses: { 200: { description: 'Plano calculado' }, 404: { description: 'Loja não encontrada' } } } },
+    '/api/system/status': { get: { summary: 'Estado das flags e módulos', responses: { 200: { description: 'Status operacional' } } } },
+    '/api/catalog/analysis': { get: { summary: 'Análise de catálogo', responses: { 200: { description: 'Análise de produtos' } } } },
+    '/api/products': { get: { summary: 'Produtos', responses: { 200: { description: 'Produtos visíveis' } } } },
+    '/api/reviews': { get: { summary: 'Avaliações', responses: { 200: { description: 'Avaliações visíveis' } } } },
+    '/api/reviews/analysis': { get: { summary: 'Análise de avaliações', responses: { 200: { description: 'Avaliações classificadas' } } } },
+    '/api/reviews/critical': { get: { summary: 'Avaliações críticas', responses: { 200: { description: 'Avaliações prioritárias' } } } },
+    '/api/alerts': { get: { summary: 'Alertas', responses: { 200: { description: 'Alertas visíveis' } } } },
+    '/api/opportunities': { get: { summary: 'Oportunidades', responses: { 200: { description: 'Oportunidades visíveis' } } } },
+    '/api/approvals': { get: { summary: 'Caixa de aprovações', responses: { 200: { description: 'Aprovações pendentes e decididas' } } } },
+    '/api/decisions': { get: { summary: 'Decisões', responses: { 200: { description: 'Decisões registradas' } } } },
+    '/api/audit': { get: { summary: 'Auditoria', responses: { 200: { description: 'Trilha de auditoria' } } } },
+    '/api/reports/daily': { get: { summary: 'Relatório executivo diário', parameters: [{ name: 'scenario', in: 'query', schema: { type: 'string', enum: DEMO_SCENARIOS, default: 'normal' } }], responses: { 200: { description: 'Resumo executivo' } } } },
+    '/api/reports/products.csv': { get: { summary: 'Exportar produtos em CSV', parameters: [{ name: 'scenario', in: 'query', schema: { type: 'string', enum: DEMO_SCENARIOS, default: 'normal' } }], responses: { 200: { description: 'Arquivo CSV' } } } },
+    '/api/reports/orders.csv': { get: { summary: 'Exportar pedidos em CSV', parameters: [{ name: 'scenario', in: 'query', schema: { type: 'string', enum: DEMO_SCENARIOS, default: 'normal' } }], responses: { 200: { description: 'Arquivo CSV' } } } },
+    '/api/ifood/config': { get: { summary: 'Configuração da integração iFood', responses: { 200: { description: 'Modo e configuração sem segredos' } } } },
+    '/api/ifood/health': { get: { summary: 'Saúde da integração iFood', responses: { 200: { description: 'Saúde e módulos' } } } },
+    '/api/approvals/{id}': { post: { summary: 'Decidir aprovação', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { 200: { description: 'Decisão registrada' }, 400: { description: 'Decisão inválida' } } } },
+    '/api/ifood/sync': { post: { summary: 'Sincronizar eventos iFood', responses: { 200: { description: 'Sincronização concluída' }, 409: { description: 'Integração desativada' } } } },
+    '/api/ifood/webhook': { post: { summary: 'Receber evento iFood', requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['id'], properties: { id: { type: 'string', maxLength: 256 } } } } } }, responses: { 202: { description: 'Recebido e aceito para processamento' }, 400: { description: 'Payload inválido ou sem id' }, 401: { description: 'Assinatura inválida' }, 415: { description: 'Content-Type não suportado' } } } }
+  }
+};

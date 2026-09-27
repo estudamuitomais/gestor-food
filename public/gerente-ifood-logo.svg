@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Gerente iFood IA</title>
+  <desc id="desc">Ícone de gestão de pedidos com gráfico de crescimento</desc>
+  <rect width="512" height="512" rx="112" fill="#172033"/>
+  <circle cx="256" cy="256" r="166" fill="#243451"/>
+  <path d="M128 332h256M160 252l64-58 64 38 64-78v178" fill="none" stroke="#ffb347" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="160" cy="252" r="18" fill="#ffb347"/>
+  <circle cx="224" cy="194" r="18" fill="#ffb347"/>
+  <circle cx="288" cy="232" r="18" fill="#ffb347"/>
+  <circle cx="352" cy="154" r="18" fill="#ffb347"/>
+  <path d="M128 380h256" stroke="#ffb347" stroke-width="18" stroke-linecap="round" opacity=".75"/>
+</svg>

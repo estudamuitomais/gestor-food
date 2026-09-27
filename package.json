@@ -1,0 +1,13 @@
+{
+  "name": "gerente-ifood-ia",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Fundação do Gerente iFood IA — modo DEMO e resultado sem CMV.",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js",
+    "check": "node --check src/server.js && node --check src/api/openapi.js && node --check public/app.js",
+    "test": "node --test"
+  }
+}

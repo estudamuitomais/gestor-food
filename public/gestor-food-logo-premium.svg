@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">Gestor Food — Logo Premium</title>
+  <desc id="desc">Monograma GF sobre prato com gráfico de crescimento</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101a31"/>
+      <stop offset="0.55" stop-color="#21486c"/>
+      <stop offset="1" stop-color="#0e8a91"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff8a4c"/>
+      <stop offset="1" stop-color="#ffd166"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#07101f" flood-opacity=".38"/>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" rx="224" fill="url(#bg)"/>
+  <circle cx="820" cy="180" r="170" fill="#ffffff" opacity=".06"/>
+  <circle cx="160" cy="870" r="230" fill="#ffffff" opacity=".05"/>
+  <g filter="url(#shadow)">
+    <circle cx="512" cy="500" r="300" fill="#f7fbff" opacity=".96"/>
+    <circle cx="512" cy="500" r="250" fill="none" stroke="#d8e8ee" stroke-width="18"/>
+    <path d="M338 664h348" stroke="#b9d2dc" stroke-width="14" stroke-linecap="round"/>
+    <path d="M370 594V438l84-74 82 48 112-124v306" fill="none" stroke="url(#accent)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M584 412h64v64" fill="none" stroke="url(#accent)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="370" cy="438" r="22" fill="#ff8a4c"/>
+    <circle cx="454" cy="364" r="22" fill="#ff9d50"/>
+    <circle cx="536" cy="412" r="22" fill="#ffb557"/>
+    <circle cx="648" cy="288" r="22" fill="#ffd166"/>
+    <text x="512" y="792" text-anchor="middle" font-family="Arial, sans-serif" font-size="76" font-weight="800" letter-spacing="8" fill="#172033">GF</text>
+  </g>
+  <path d="M210 188h84" stroke="#ffd166" stroke-width="14" stroke-linecap="round" opacity=".8"/>
+  <path d="M730 846h84" stroke="#ff8a4c" stroke-width="14" stroke-linecap="round" opacity=".8"/>
+</svg>
