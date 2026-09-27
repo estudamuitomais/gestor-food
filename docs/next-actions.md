@@ -10,7 +10,7 @@
 
 ## 2. Preparar o ambiente
 
-- Publicar o backend atrás de HTTPS.
+- Backend publicado atrás de HTTPS em `https://gestor-food.onrender.com`.
 - Configurar `IFOOD_INTEGRATION_ENABLED=true` somente após homologação.
 - Configurar `REQUIRE_AUTH=true`.
 - Manter `COSTS_ENABLED=false` até autorização administrativa.
@@ -19,8 +19,9 @@
 
 ## 3. Persistência e operação
 
-- Escolher o banco compatível com `src/db/schema.sql`.
-- Executar migrações e validar isolamento por `company_id`/`store_id`.
+- PostgreSQL compatível com `src/db/schema.sql` já está conectado no Render.
+- Migração idempotente executada automaticamente no boot.
+- Validar isolamento por `company_id`/`store_id` no ambiente homologado.
 - Configurar backup restaurável e retenção do audit log.
 - Monitorar `/healthz` e `/readyz`.
 - Executar testes de contrato e reconciliação em homologação.

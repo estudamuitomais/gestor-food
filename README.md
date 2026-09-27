@@ -43,7 +43,7 @@ O módulo financeiro em `src/domain/product-finance.js` rateia custos de pedido 
 - [Próximas ações operacionais](docs/next-actions.md)
 - [Revisão de segurança](docs/security-review.md)
 
-O modo atual usa persistência em memória para DEMO. A promoção para produção exige banco persistente, backup restaurável, credenciais homologadas e webhook HTTPS.
+O modo DEMO local usa persistência em memória. A instância publicada usa PostgreSQL e HTTPS; a promoção para integração real ainda exige backup restaurável, credenciais homologadas, webhook registrado e aprovação do iFood.
 
 ## Persistência PostgreSQL
 

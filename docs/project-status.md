@@ -22,15 +22,19 @@
 - Redaction, auditoria, rate limit e headers de segurança.
 - Adaptadores oficiais iFood preparados.
 - Adaptador PostgreSQL opcional, migração inicial e verificação de prontidão preparados.
+- Serviço publicado no Render com HTTPS público.
+- PostgreSQL de produção provisionado e conectado ao serviço.
+- Migração automática idempotente executada no boot do serviço.
+- Health check configurado em `/healthz` e readiness validada em `/readyz`.
+- CI do GitHub Actions validando a branch `main`.
 
 ## Ainda depende de ambiente externo
 
 - CNPJ e homologação no Developer Portal do iFood.
 - `IFOOD_CLIENT_ID` e `IFOOD_CLIENT_SECRET` reais.
-- URL HTTPS pública para webhook.
-- Provisionamento e configuração do banco persistente de produção.
-- Deploy e política de backup operacional.
-- Persistência definitiva; o status da aplicação informa explicitamente `MEMORY`/DEMO.
+- Registro da URL HTTPS do webhook no portal do iFood.
+- Política de backup restaurável e retenção operacional do banco.
+- Persistência definitiva de produção está ativa; ambientes sem `DATABASE_URL` continuam explicitamente em `MEMORY`/DEMO.
 - Validação dos módulos Financial, Analytics, Catalog e Review no ambiente homologado.
 
 ## Regras atuais
