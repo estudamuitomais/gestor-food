@@ -8,6 +8,7 @@
     "dev": "node src/server.js",
     "start": "node src/server.js",
     "db:migrate": "node scripts/migrate.js",
+    "smoke:production": "node scripts/smoke-production.mjs",
     "check": "node --check src/server.js && node --check src/api/openapi.js && node --check public/app.js",
     "test": "node --test"
   },
