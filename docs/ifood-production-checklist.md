@@ -40,6 +40,8 @@
 6. Webhook HTTPS com validação de `X-IFood-Signature`.
 7. Responder `202 Accepted` rapidamente e tratar a entrega como pelo menos uma vez, mantendo idempotência por `event.id`.
 8. Order para detalhes e ciclo operacional.
+   - [x] Consulta de pedido completo, motivos dinâmicos de cancelamento e ações de confirmação, preparo, pronto, despacho e solicitação de cancelamento.
+   - [x] Preservação de itens, cliente, pagamentos, benefícios/cupons, retirada, entrega e agendamento no payload oficial do pedido.
 9. Analytics para métricas agregadas D-1, com filtro de período e indicação explícita de que não é dado em tempo real.
 10. Financial mediante homologação específica e ticket separado.
 11. Catalog e Review somente depois de validar limites de autonomia.

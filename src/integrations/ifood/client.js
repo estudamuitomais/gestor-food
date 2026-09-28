@@ -56,6 +56,12 @@ export class IfoodApiClient {
   deleteMerchantInterruption(merchantId, interruptionId) { return this.request(`/merchant/v1.0/merchants/${encodeURIComponent(merchantId)}/interruptions/${encodeURIComponent(interruptionId)}`, { method: 'DELETE' }); }
   getOpeningHours(merchantId) { return this.request(`/merchant/v1.0/merchants/${encodeURIComponent(merchantId)}/opening-hours`); }
   getOrder(orderId) { return this.request(`/order/v1.0/orders/${encodeURIComponent(orderId)}`); }
+  getCancellationReasons(orderId) { return this.request(`/order/v1.0/orders/${encodeURIComponent(orderId)}/cancellationReasons`); }
+  confirmOrder(orderId) { return this.request(`/order/v1.0/orders/${encodeURIComponent(orderId)}/confirm`, { method: 'POST' }); }
+  startPreparation(orderId) { return this.request(`/order/v1.0/orders/${encodeURIComponent(orderId)}/startPreparation`, { method: 'POST' }); }
+  readyToPickup(orderId) { return this.request(`/order/v1.0/orders/${encodeURIComponent(orderId)}/readyToPickup`, { method: 'POST' }); }
+  dispatchOrder(orderId, deliveredBy = 'MERCHANT') { return this.request(`/order/v1.0/orders/${encodeURIComponent(orderId)}/dispatch`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ deliveredBy }) }); }
+  requestCancellation(orderId, reason) { return this.request(`/order/v1.0/orders/${encodeURIComponent(orderId)}/requestCancellation`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(reason ?? {}) }); }
   listCatalogs(merchantId) { return this.request(`/catalog/v2.0/merchants/${encodeURIComponent(merchantId)}/catalogs`); }
   listSellableItems(merchantId, catalogId) { return this.request(`/catalog/v2.0/merchants/${encodeURIComponent(merchantId)}/catalogs/${encodeURIComponent(catalogId)}/sellableItems`); }
   listReviews(merchantId, query = '') { return this.request(`/review/v2.0/merchants/${encodeURIComponent(merchantId)}/reviews${query ? `?${query}` : ''}`); }

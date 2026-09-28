@@ -96,6 +96,14 @@ test('API HTTP mantém operações Merchant bloqueadas no DEMO', async () => {
   }
 });
 
+test('API HTTP mantém operações Order bloqueadas no DEMO', async () => {
+  for (const path of ['/api/ifood/orders/o1', '/api/ifood/orders/o1/cancellationReasons']) {
+    const response = await fetch(`${baseUrl}${path}`);
+    assert.equal(response.status, 409, path);
+    assert.equal((await response.json()).mode, 'DEMO');
+  }
+});
+
 test('webhook HTTP responde 202 após validar assinatura', async () => {
   const previousSecret = process.env.IFOOD_CLIENT_SECRET;
   process.env.IFOOD_CLIENT_SECRET = 'webhook-test-secret';

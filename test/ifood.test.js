@@ -40,12 +40,26 @@ test('cliente iFood monta operações obrigatórias do Merchant', async () => {
   await client.createMerchantInterruption('m1', { start: '2026-09-27T10:00:00Z' });
   await client.deleteMerchantInterruption('m1', 'pause-1');
   await client.getOpeningHours('m1');
+  await client.getOrder('o1');
+  await client.getCancellationReasons('o1');
+  await client.confirmOrder('o1');
+  await client.startPreparation('o1');
+  await client.readyToPickup('o1');
+  await client.dispatchOrder('o1');
+  await client.requestCancellation('o1', { reason: 'OUT_OF_STOCK' });
   assert.deepEqual(calls.filter(call => !call.url.includes('/authentication/')), [
     { url: 'https://merchant-api.ifood.com.br/merchant/v1.0/merchants/m1', method: 'GET' },
     { url: 'https://merchant-api.ifood.com.br/merchant/v1.0/merchants/m1/status', method: 'GET' },
     { url: 'https://merchant-api.ifood.com.br/merchant/v1.0/merchants/m1/interruptions', method: 'GET' },
     { url: 'https://merchant-api.ifood.com.br/merchant/v1.0/merchants/m1/interruptions', method: 'POST' },
     { url: 'https://merchant-api.ifood.com.br/merchant/v1.0/merchants/m1/interruptions/pause-1', method: 'DELETE' },
-    { url: 'https://merchant-api.ifood.com.br/merchant/v1.0/merchants/m1/opening-hours', method: 'GET' }
+    { url: 'https://merchant-api.ifood.com.br/merchant/v1.0/merchants/m1/opening-hours', method: 'GET' },
+    { url: 'https://merchant-api.ifood.com.br/order/v1.0/orders/o1', method: 'GET' },
+    { url: 'https://merchant-api.ifood.com.br/order/v1.0/orders/o1/cancellationReasons', method: 'GET' },
+    { url: 'https://merchant-api.ifood.com.br/order/v1.0/orders/o1/confirm', method: 'POST' },
+    { url: 'https://merchant-api.ifood.com.br/order/v1.0/orders/o1/startPreparation', method: 'POST' },
+    { url: 'https://merchant-api.ifood.com.br/order/v1.0/orders/o1/readyToPickup', method: 'POST' },
+    { url: 'https://merchant-api.ifood.com.br/order/v1.0/orders/o1/dispatch', method: 'POST' },
+    { url: 'https://merchant-api.ifood.com.br/order/v1.0/orders/o1/requestCancellation', method: 'POST' }
   ]);
 });

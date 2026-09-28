@@ -86,6 +86,18 @@ export const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && req.url === '/api/ifood/config') return json(res, { enabled: ifoodClient.enabled, configured: Boolean(ifoodClient.clientId && ifoodClient.clientSecret), mode: ifoodClient.enabled ? 'REAL' : 'DEMO' });
     if (req.method === 'GET' && req.url === '/api/ifood/health') return json(res, integrationHealth());
     if (req.method === 'GET' && req.url === '/api/ifood/merchants') return await handleIfoodRead(res, () => ifoodClient.listMerchants());
+    if (req.url.startsWith('/api/ifood/orders/')) {
+      const parts = req.url.split('/').slice(4).map(part => decodeURIComponent(part.split('?')[0]));
+      const [orderId, operation] = parts;
+      if (!orderId) return json(res, { error: 'orderId obrigatório.' }, 400);
+      if (req.method === 'GET' && !operation) return await handleIfoodRead(res, () => ifoodClient.getOrder(orderId));
+      if (req.method === 'GET' && operation === 'cancellationReasons') return await handleIfoodRead(res, () => ifoodClient.getCancellationReasons(orderId));
+      const actions = { confirm: () => ifoodClient.confirmOrder(orderId), startPreparation: () => ifoodClient.startPreparation(orderId), readyToPickup: () => ifoodClient.readyToPickup(orderId), dispatch: () => ifoodClient.dispatchOrder(orderId), requestCancellation: async () => ifoodClient.requestCancellation(orderId, await readJson(req)) };
+      if (req.method === 'POST' && actions[operation]) {
+        if (!requireProtectedAuth(req) || !hasPermission(req, 'execute_actions')) return json(res, { error: 'Permissão insuficiente.' }, 403);
+        try { return json(res, await actions[operation](), 202); } catch (error) { return json(res, { error: error.message }, 502); }
+      }
+    }
     if (req.url.startsWith('/api/ifood/merchants/')) {
       const parts = req.url.split('/').slice(4).map(part => decodeURIComponent(part.split('?')[0]));
       const [merchantId, operation, operationId] = parts;
@@ -302,6 +314,8 @@ function allowedMethodsFor(requestUrl) {
   if (pathname === '/api/ifood/webhook' || pathname === '/api/ifood/sync') return ['POST'];
   if (pathname.match(/^\/api\/ifood\/merchants\/[^/]+\/interruptions$/)) return ['GET', 'POST'];
   if (pathname.match(/^\/api\/ifood\/merchants\/[^/]+\/interruptions\/[^/]+$/)) return ['DELETE'];
+  if (pathname.match(/^\/api\/ifood\/orders\/[^/]+$/) || pathname.match(/^\/api\/ifood\/orders\/[^/]+\/cancellationReasons$/)) return ['GET'];
+  if (pathname.match(/^\/api\/ifood\/orders\/[^/]+\/(confirm|startPreparation|readyToPickup|dispatch|requestCancellation)$/)) return ['POST'];
   if (pathname.startsWith('/api/approvals/')) return ['POST'];
   if (pathname.startsWith('/api/recovery/') || pathname.startsWith('/api/stores/') && pathname.endsWith('/health') || pathname.startsWith('/api/orders/')) return ['GET'];
   return null;
