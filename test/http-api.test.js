@@ -88,6 +88,14 @@ test('API HTTP mantém integração externa bloqueada no DEMO', async () => {
   assert.equal(body.enabled, false);
 });
 
+test('API HTTP mantém operações Merchant bloqueadas no DEMO', async () => {
+  for (const path of ['/api/ifood/merchants', '/api/ifood/merchants/m1', '/api/ifood/merchants/m1/status', '/api/ifood/merchants/m1/interruptions', '/api/ifood/merchants/m1/opening-hours']) {
+    const response = await fetch(`${baseUrl}${path}`);
+    assert.equal(response.status, 409, path);
+    assert.equal((await response.json()).mode, 'DEMO');
+  }
+});
+
 test('webhook HTTP responde 202 após validar assinatura', async () => {
   const previousSecret = process.env.IFOOD_CLIENT_SECRET;
   process.env.IFOOD_CLIENT_SECRET = 'webhook-test-secret';

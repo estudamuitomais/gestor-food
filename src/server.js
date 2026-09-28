@@ -85,6 +85,24 @@ export const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && req.url === '/api/auth/me') return await handleAuthMe(req, res);
     if (req.method === 'GET' && req.url === '/api/ifood/config') return json(res, { enabled: ifoodClient.enabled, configured: Boolean(ifoodClient.clientId && ifoodClient.clientSecret), mode: ifoodClient.enabled ? 'REAL' : 'DEMO' });
     if (req.method === 'GET' && req.url === '/api/ifood/health') return json(res, integrationHealth());
+    if (req.method === 'GET' && req.url === '/api/ifood/merchants') return await handleIfoodRead(res, () => ifoodClient.listMerchants());
+    if (req.url.startsWith('/api/ifood/merchants/')) {
+      const parts = req.url.split('/').slice(4).map(part => decodeURIComponent(part.split('?')[0]));
+      const [merchantId, operation, operationId] = parts;
+      if (!merchantId) return json(res, { error: 'merchantId obrigatório.' }, 400);
+      if (req.method === 'GET' && !operation) return await handleIfoodRead(res, () => ifoodClient.getMerchant(merchantId));
+      if (req.method === 'GET' && operation === 'status') return await handleIfoodRead(res, () => ifoodClient.getMerchantStatus(merchantId));
+      if (req.method === 'GET' && operation === 'interruptions') return await handleIfoodRead(res, () => ifoodClient.getMerchantInterruptions(merchantId));
+      if (req.method === 'GET' && operation === 'opening-hours') return await handleIfoodRead(res, () => ifoodClient.getOpeningHours(merchantId));
+      if (operation === 'interruptions' && req.method === 'POST' && !operationId) {
+        if (!requireProtectedAuth(req) || !hasPermission(req, 'execute_actions')) return json(res, { error: 'Permissão insuficiente.' }, 403);
+        try { return json(res, await ifoodClient.createMerchantInterruption(merchantId, await readJson(req)), 201); } catch (error) { return json(res, { error: error.message }, 502); }
+      }
+      if (operation === 'interruptions' && req.method === 'DELETE' && operationId) {
+        if (!requireProtectedAuth(req) || !hasPermission(req, 'execute_actions')) return json(res, { error: 'Permissão insuficiente.' }, 403);
+        try { await ifoodClient.deleteMerchantInterruption(merchantId, operationId); return json(res, { deleted: true }); } catch (error) { return json(res, { error: error.message }, 502); }
+      }
+    }
     if (req.method === 'GET' && req.url === '/api/ifood/merchants/status') {
       if (!ifoodClient.enabled) return json(res, { mode: 'DEMO', enabled: false, message: 'Monitoramento real desativado.' }, 409);
       const environment = validateEnvironment();
@@ -282,6 +300,8 @@ function allowedMethodsFor(requestUrl) {
   if (pathname === '/api/auth/me' || pathname === '/api/ifood/config' || pathname === '/api/ifood/health' || pathname === '/api/ifood/merchants/status' || pathname === '/api/ifood/orders' || pathname === '/api/ifood/events' || pathname === '/api/ifood/reconciliation' || pathname === '/api/demo/scenarios' || pathname === '/api/openapi.json' || pathname === '/api/system/status' || pathname === '/api/stores' || pathname === '/api/orders' || pathname === '/api/finance/summary' || pathname === '/api/metrics' || pathname === '/api/metrics/daily' || pathname === '/api/metrics/hourly' || pathname === '/api/forecasts' || pathname === '/api/catalog/analysis' || pathname === '/api/products' || pathname === '/api/reviews' || pathname === '/api/reviews/analysis' || pathname === '/api/reviews/critical' || pathname === '/api/alerts' || pathname === '/api/opportunities' || pathname === '/api/approvals' || pathname === '/api/decisions' || pathname === '/api/audit' || pathname === '/api/backup/demo.json' || pathname === '/api/reports/daily' || pathname === '/api/reports/products.csv' || pathname === '/api/reports/orders.csv' || pathname.startsWith('/api/goals')) return ['GET'];
   if (pathname === '/api/demo') return ['GET'];
   if (pathname === '/api/ifood/webhook' || pathname === '/api/ifood/sync') return ['POST'];
+  if (pathname.match(/^\/api\/ifood\/merchants\/[^/]+\/interruptions$/)) return ['GET', 'POST'];
+  if (pathname.match(/^\/api\/ifood\/merchants\/[^/]+\/interruptions\/[^/]+$/)) return ['DELETE'];
   if (pathname.startsWith('/api/approvals/')) return ['POST'];
   if (pathname.startsWith('/api/recovery/') || pathname.startsWith('/api/stores/') && pathname.endsWith('/health') || pathname.startsWith('/api/orders/')) return ['GET'];
   return null;
@@ -312,6 +332,10 @@ function integrationHealth() {
   return { status: env.valid ? (ifoodClient.enabled ? 'READY_FOR_SYNC' : 'DEMO_ONLY') : 'CONFIG_ERROR', integrationEnabled: ifoodClient.enabled, credentialsConfigured: Boolean(ifoodClient.clientId && ifoodClient.clientSecret), modules: { authentication: true, merchant: true, events: true, order: true, catalog: false, review: false, financial: false, analytics: false }, errors: env.errors, externalCallsAllowed: ifoodClient.enabled };
 }
 function send(res, code, body) { res.writeHead(code, { 'Content-Type': 'text/plain; charset=utf-8' }); res.end(body); }
+async function handleIfoodRead(res, operation) {
+  if (!ifoodClient.enabled) return json(res, { enabled: false, mode: 'DEMO', message: 'Integração real desativada.' }, 409);
+  try { return json(res, await operation()); } catch (error) { return json(res, { error: error.message }, 502); }
+}
 export function startServer(port = Number(process.env.PORT ?? 3000)) {
   const normalizedPort = Number(port);
   if (!Number.isInteger(normalizedPort) || normalizedPort < 0 || normalizedPort > 65535) throw new Error('Porta inválida.');
